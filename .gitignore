@@ -1,0 +1,24 @@
+node_modules/
+dist/
+*.local
+.DS_Store
+.vscode/
+
+# Las fotos ORIGINALES de la familia no se publican.
+#
+# El juego no las necesita para compilar: lo que usa son las texturas ya
+# recortadas, que están generadas y versionadas en src/characters/photos.ts y
+# src/ui/portraits.ts. Los originales son otra cosa —de cuerpo entero, a
+# resolución completa, con lo que haya de fondo— y en un repositorio público
+# quedarían a la vista de cualquiera sin que eso le sume nada al juego.
+#
+# Para regenerar las caras hay que tenerlas en local: ver el README.
+fotos/
+scripts/landmarks.json
+
+__pycache__/
+*.pyc
+
+# Capturas que escriben los tests al correr. Son salidas, no material de
+# entrada: el test las genera cada vez y nadie las lee.
+test/*.png

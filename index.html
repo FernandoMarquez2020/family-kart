@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Family Kart</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230d1117'/%3E%3Crect x='7' y='12' width='18' height='8' rx='2' fill='%23e8402f'/%3E%3Ccircle cx='11' cy='22' r='3.2' fill='%23f2f2f2'/%3E%3Ccircle cx='21' cy='22' r='3.2' fill='%23f2f2f2'/%3E%3Crect x='12' y='7' width='8' height='4' rx='1.5' fill='%23ffcc33'/%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <canvas id="game-canvas"></canvas>
+
+      <div id="hud" class="hidden">
+        <div class="hud-topleft">
+          <div class="stat-box" id="hud-position-box">
+            <span class="stat-label">PUESTO</span>
+            <span class="stat-value"
+              ><span id="hud-position">1</span><span class="stat-total" id="hud-position-total">/4</span></span
+            >
+          </div>
+          <div class="stat-box">
+            <span class="stat-label">VUELTA</span>
+            <span class="stat-value"
+              ><span id="hud-lap">1</span><span class="stat-total" id="hud-lap-total">/3</span></span
+            >
+          </div>
+          <div class="time-box">
+            <div class="time-row"><span>TIEMPO</span><b id="hud-time">0:00.00</b></div>
+            <div class="time-row dim"><span>MEJOR</span><b id="hud-best">--:--.--</b></div>
+            <div class="time-row dim"><span>&Uacute;LTIMA</span><b id="hud-last">--:--.--</b></div>
+          </div>
+        </div>
+
+        <div class="hud-topright">
+          <div id="hud-item" class="item-slot"><span id="hud-item-icon"></span></div>
+          <div id="hud-map-box" class="map-box"><canvas id="hud-map"></canvas></div>
+        </div>
+
+        <div class="hud-bottomright">
+          <div class="speedo"><span id="hud-speed">0</span><small>km/h</small></div>
+          <div class="drift-bar"><div id="hud-drift-fill"></div></div>
+        </div>
+
+        <div id="hud-center-msg"></div>
+        <div id="hud-warning" class="hidden">&iexcl;CONTRAMANO!</div>
+      </div>
+
+      <div id="menu">
+        <div class="menu-panel">
+          <header class="menu-head">
+            <h1>FAMILY <span>KART</span></h1>
+            <p class="tagline" id="menu-step-label">Eleg&iacute; c&oacute;mo quer&eacute;s jugar.</p>
+          </header>
+
+          <div id="menu-body"></div>
+
+          <div class="menu-nav">
+            <button id="menu-back" class="ghost-btn" type="button">&larr; Atr&aacute;s</button>
+            <button id="menu-next" class="primary-btn" type="button">SIGUIENTE</button>
+          </div>
+
+          <div class="controls">
+            <div><kbd>&uarr;</kbd> acelerar</div>
+            <div><kbd>&darr;</kbd> frenar / reversa</div>
+            <div><kbd>&larr;</kbd> <kbd>&rarr;</kbd> doblar</div>
+            <div><kbd>Espacio</kbd> saltar y derrapar</div>
+            <div><kbd>Shift</kbd> usar el poder</div>
+            <div><kbd>R</kbd> volver a la pista</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="results" class="hidden">
+        <div class="results-panel">
+          <h2 id="results-title">Resultados</h2>
+          <p id="results-subtitle" class="tagline"></p>
+          <div id="results-table" class="results-table"></div>
+          <div class="results-actions">
+            <button id="results-primary" class="primary-btn" type="button">CONTINUAR</button>
+            <button id="results-menu" class="ghost-btn" type="button">Men&uacute;</button>
+          </div>
+        </div>
+      </div>
+
+      <button id="back-btn" class="hidden" type="button">&larr; Salir</button>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

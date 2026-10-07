@@ -1,0 +1,26 @@
+{
+  "name": "family-kart",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Kart racer 3D low-poly con personajes caricaturizados desde fotos y multijugador online",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "test:net": "node test/net.mjs",
+    "test": "node test/smoke.mjs && node test/net.mjs",
+    "test:smoke": "node test/smoke.mjs"
+  },
+  "dependencies": {
+    "peerjs": "^1.5.5",
+    "three": "^0.186.0"
+  },
+  "devDependencies": {
+    "@types/three": "^0.186.0",
+    "playwright": "^1.63.0",
+    "typescript": "^5.7.0",
+    "vite": "^6.0.0"
+  }
+}
