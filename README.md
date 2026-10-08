@@ -252,6 +252,24 @@ promedio y salen todas más flacas. Y la mitad que la foto no muestra se rellena
 con su reflejo, pero **empezando pasado el ojo**: arrancando en el eje, el ojo
 bueno se superpone al otro y queda un ojo fantasma.
 
+**Hito 8 — invitar, y que el juego tenga cara.** Tres cosas chicas que el juego
+no tenía y que son las que lo hacen parecer una aplicación y no una página.
+
+- **Invitar por WhatsApp.** La sala tiene un botón que abre WhatsApp con el
+  mensaje escrito y el link adentro. Antes había que seleccionar el link del
+  campo, copiarlo y buscarlo en otro lado; cuando la gracia del modo online es
+  avisarle a alguien *ahora*, esos tres pasos son suficientes para que la partida
+  no pase. Al lado quedó un botón de copiar, que dice que copió — copiar no
+  produce ningún cambio visible y sin el aviso uno aprieta tres veces.
+- **La vista previa del link.** Lo que llega del otro lado no es un link pelado
+  sino una tarjeta con una imagen de cuatro karts cruzando la meta, el nombre del
+  juego y una línea de texto. La imagen la renderiza el propio motor
+  (`scripts/build-invite.mjs`).
+- **El ícono y la firma.** El juego tiene su ícono en la pestaña, en el acceso
+  directo del escritorio y en la pantalla de inicio del celular, donde ahora se
+  puede agregar como aplicación. Y la portada cierra con la firma del autor al
+  pie.
+
 Todavía no: torneos en red, chat.
 
 ## Publicarlo en la web
@@ -427,6 +445,8 @@ src/
   ui/
     Intro.ts         Presentación animada
     figures.ts       Los renders de portada embebidos (generado, no editar)
+    brand.ts         La firma del autor del pie de la portada (generado, no editar)
+    Lobby.ts         Sala del modo online: link, invitación por WhatsApp y arranque
     Menu.ts          Menú por pasos
     Options.ts       Pausa y opciones de control en plena carrera
     TouchControls.ts Botones en pantalla para celular y tablet
@@ -436,6 +456,15 @@ src/
     Hud.ts           HUD en DOM
     Minimap.ts       Minimapa translúcido en canvas 2D
     Sky.ts           Domo de cielo
+public/            Archivos que se publican tal cual, sin pasar por el bundle
+  favicon.ico      Ícono de la pestaña
+  icono-192.png    Ícono de la pantalla de inicio y del acceso directo
+  icono-512.png
+  apple-touch-icon.png
+  manifest.webmanifest
+  invitacion.jpg   La imagen que se ve al compartir el link de una sala
+marca/
+  fernando-marquez.png   El logo original del autor, antes de recortarle el fondo
 ```
 
 ### La convención de "derecha"
@@ -512,6 +541,41 @@ parece bien, y los problemas —el casquete que se hunde, el pelo que se abre, l
 nuca pelada— aparecen a tres cuartos y de perfil, que es justo desde donde se ve
 al piloto mientras se corre.
 
+## El ícono, la invitación y la firma
+
+Tres cosas que no se ven jugando y que por eso conviene saber dónde están.
+
+```bash
+npm run build:iconos       # el ícono de la app, en todos sus tamaños
+npm run build:marca        # la firma del autor, con el fondo recortado
+npm run build:invitacion   # la imagen de la vista previa del link
+```
+
+**El ícono** (`scripts/build-icons.py`) es un dibujo y no una captura del juego.
+A 512 px cualquiera de las dos funciona; a 16 px —el tamaño real de la pestaña—
+una foto de un kart en pista se convierte en una mancha marrón. El dibujo tiene
+cuatro formas grandes y mucho contraste, que es lo único que sobrevive a esa
+reducción.
+
+**La invitación** (`scripts/build-invite.mjs`) es el motor del juego usado como
+estudio fotográfico: arma una carrera de cuatro karts, los acomoda en formación y
+los fotografía desde adelante y abajo. La cámara de juego no sirve para esto —va
+detrás del jugador, así que lo que se ve es una nuca— y una captura cualquiera
+tampoco: la imagen tiene que medir 1200×630, que es lo que esperan WhatsApp,
+Telegram y el resto. Fuera de esa proporción la recortan solas.
+
+Esa imagen la encuentra WhatsApp por las etiquetas `og:` de `index.html`, y ahí
+las direcciones van **completas** y no relativas: quien arma la vista previa es un
+servidor de WhatsApp, no el navegador de nadie, y una dirección relativa la
+resuelve contra sí mismo. Si algún día el juego cambia de dirección, hay que
+cambiarlas a mano.
+
+**La firma** (`scripts/build-brand.py`) sale del logo de `marca/`, que viene como
+una tarjeta de letras claras sobre un rectángulo azul. El script le vuelve
+transparente el fondo —el azul de la tarjeta y el negro de las esquinas— y deja
+sólo las letras, que se apoyan sobre el afiche en lugar de quedar dentro de un
+recuadro pegado encima.
+
 ## El modo en red
 
 ```bash
@@ -523,6 +587,13 @@ aprieta una mueve su kart en la pantalla de la otra**. Medirlo sobre el anfitri�
 no es un detalle: él es quien simula, así que si ahí se movió es porque las
 teclas viajaron de verdad. Mirando la pestaña del invitado no se probaría nada —
 ahí el kart se mueve por su propia física, conectado o no.
+
+Invitar es mandar un link: el código de la sala va en la dirección
+(`?sala=abc123`), así que quien lo abre ya entró, sin escribir nada. El botón de
+WhatsApp de la sala abre la aplicación con el mensaje escrito y el link al final
+—al final y solo en su renglón, que es donde WhatsApp lo busca para armar la
+vista previa—. Sin número de destino: la invitación casi nunca es para una sola
+persona, así que WhatsApp pregunta a quién mandársela.
 
 Una cosa a tener presente: **la pestaña que queda en segundo plano deja de
 simular**. El navegador le baja el `requestAnimationFrame` a uno por segundo. Para
@@ -538,7 +609,7 @@ node test/smoke.mjs
 
 Abre el juego en Chromium y lo maneja por la API de override de inputs,
 avanzando el reloj a mano en vez de esperar al `requestAnimationFrame`: el test
-es determinista y corre en segundos. 115 verificaciones: manejo (aceleración,
+es determinista y corre en segundos. 124 verificaciones: manejo (aceleración,
 velocidad punta, frenado, dirección, derrape, mini turbo, fuera de pista,
 banquina, barrera, contramano), choques entre karts, rampas y cajas, los cuatro
 poderes uno por uno —incluido que el misil siga el trazado y no corte camino—,
@@ -551,7 +622,14 @@ pausa de verdad, y cambiar de teclado ahí se aplica en el acto). También la
 presentación: que se llame Family Kart, que entren los seis escalonados con sus
 renders decodificados, que al cerrarse quede el menú con la parrilla, que cada
 tarjeta lleve la foto real y el vehículo, y que en pista el piloto tenga puesta
-su foto y no el dibujo.
+su foto y no el dibujo, y la firma del autor al pie.
+
+Y lo que no se ve jugando, que es justamente lo que nadie nota cuando se rompe:
+que el ícono y el manifiesto existan y se puedan descargar, que las etiquetas de
+la vista previa apunten a una dirección completa, que la sala ofrezca el botón de
+WhatsApp, y que el mensaje de invitación termine en el link con el código de la
+sala. El mensaje se arma en el módulo y se verifica ahí, sin abrir WhatsApp:
+abrirlo saldría a internet y dependería de una sesión iniciada.
 
 Varias verificaciones son visuales o de pantalla, porque los bugs de este
 proyecto vinieron casi todos de ahí: una malla puede existir, estar bien

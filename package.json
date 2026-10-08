@@ -7,6 +7,9 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
+    "build:iconos": "python3 scripts/build-icons.py",
+    "build:marca": "python3 scripts/build-brand.py",
+    "build:invitacion": "npm run build && node scripts/build-invite.mjs",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "test:net": "node test/net.mjs",

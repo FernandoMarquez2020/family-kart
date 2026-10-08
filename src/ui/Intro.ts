@@ -1,5 +1,6 @@
 import { FIGURES, HERO } from './figures';
 import { POSTER_PORTRAITS } from './portraits';
+import { AUTHOR_MARK } from './brand';
 import { CHARACTERS, displayName } from '../characters/CharacterSpec';
 
 /**
@@ -130,7 +131,21 @@ export class Intro {
     this.startBtn.style.animationDelay = `${0.3 + CHARACTERS.length * STAGGER + SETTLE}s`;
     this.startBtn.addEventListener('click', () => this.finish());
 
-    this.root.append(vignette, beam, fleet, cast, title, this.startBtn);
+    // Pie de autor. Va al final de la entrada, después del botón: en un afiche
+    // el crédito aparece cuando el ojo ya recorrió el reparto y el título, no
+    // compitiendo con ellos.
+    const credit = document.createElement('div');
+    credit.className = 'intro-credit';
+    credit.style.animationDelay = `${0.3 + CHARACTERS.length * STAGGER + SETTLE + 0.3}s`;
+    const by = document.createElement('span');
+    by.textContent = 'Creado por';
+    const mark = document.createElement('img');
+    mark.src = AUTHOR_MARK;
+    mark.alt = 'Fernando Marquez';
+    mark.decoding = 'async';
+    credit.append(by, mark);
+
+    this.root.append(vignette, beam, fleet, cast, title, this.startBtn, credit);
     document.getElementById('app')?.append(this.root);
 
     // Cualquier tecla o toque en el fondo también entra: en un celular nadie

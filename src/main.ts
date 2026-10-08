@@ -7,7 +7,7 @@ import { Menu } from './ui/Menu';
 import { Options } from './ui/Options';
 import { Results, type StandingRow } from './ui/Results';
 import { TouchControls } from './ui/TouchControls';
-import { Lobby, roomFromUrl } from './ui/Lobby';
+import { Lobby, roomFromUrl, whatsappLink } from './ui/Lobby';
 import { PeerTransport } from './net/PeerTransport';
 import { LocalTransport } from './net/Transport';
 import type { Session } from './net/Session';
@@ -296,6 +296,11 @@ lobby.onGo = (active, config) => {
   session = active;
   start(config as RaceConfig);
 };
+// Punto de entrada para los tests: así se puede comprobar cómo queda el mensaje
+// de invitación sin abrir WhatsApp, que saldría a internet y necesitaría una
+// sesión iniciada.
+(window as unknown as Record<string, unknown>).__inviteFor = whatsappLink;
+
 menu.onOnline = () => openLobby(null);
 menu.open('modo');
 menu.updateControlLegend();

@@ -1307,8 +1307,15 @@ const intro = await page.evaluate(() => {
     fleet: fleet.length,
     // El navegador devuelve la url entrecomillada: `url("data:...")`.
     backdrop: /^url\(["']?data:image\/webp/.test(root.style.backgroundImage),
+    credit: root.querySelector('.intro-credit span')?.textContent ?? '',
+    creditMark: root.querySelector('.intro-credit img')?.src.startsWith('data:image/webp') ?? false,
   };
 });
+check(
+  'La portada lleva la firma del autor',
+  /creado por/i.test(intro.credit) && intro.creditMark,
+  intro.creditMark ? intro.credit : 'falta el logo',
+);
 check('La presentación se llama Family Kart', intro.title === 'FAMILY KART', intro.title);
 check(
   'La presentación muestra a los seis con su foto real',
@@ -1398,6 +1405,97 @@ check(
   'En pista el piloto lleva su foto real',
   raceFace.hasPhoto && raceFace.width >= 512,
   raceFace.hasPhoto ? `textura de ${raceFace.width} px` : 'sigue con la cara dibujada',
+);
+
+// --- Identidad de la aplicación -------------------------------------------
+// El ícono y la vista previa del link no se ven jugando, así que no hay forma de
+// notar que se rompieron: un `href` mal escrito deja la pestaña con el ícono
+// genérico y el link compartido sin imagen, y nadie se entera hasta que alguien
+// manda una invitación y del otro lado llega un rectángulo gris.
+
+const head = await page.evaluate(async () => {
+  const get = (sel, attr) => document.querySelector(sel)?.getAttribute(attr) ?? '';
+  const reachable = async (url) => {
+    try {
+      const res = await fetch(new URL(url, location.href));
+      return res.ok;
+    } catch {
+      return false;
+    }
+  };
+  const icon = get('link[rel="icon"][sizes="any"]', 'href');
+  const apple = get('link[rel="apple-touch-icon"]', 'href');
+  const manifestUrl = get('link[rel="manifest"]', 'href');
+  let manifest = null;
+  try {
+    manifest = await (await fetch(new URL(manifestUrl, location.href))).json();
+  } catch {
+    /* lo reporta el check */
+  }
+  return {
+    icon: await reachable(icon),
+    apple: await reachable(apple),
+    manifest,
+    icons: manifest?.icons?.length ?? 0,
+    ogImage: get('meta[property="og:image"]', 'content'),
+    ogTitle: get('meta[property="og:title"]', 'content'),
+    card: get('meta[name="twitter:card"]', 'content'),
+  };
+});
+
+check(
+  'La pestaña y el acceso directo tienen su ícono',
+  head.icon && head.apple,
+  head.icon && head.apple ? 'favicon y apple-touch-icon' : 'falta alguno de los dos',
+);
+check(
+  'El manifiesto deja instalar el juego',
+  head.manifest?.name === 'Family Kart' && head.icons >= 2,
+  `${head.icons} tamaños, display ${head.manifest?.display ?? '—'}`,
+);
+check(
+  'El link compartido lleva imagen y título',
+  /^https:\/\/.+\/invitacion\.jpg$/.test(head.ogImage) &&
+    head.ogTitle.includes('Family Kart') &&
+    head.card === 'summary_large_image',
+  head.ogImage,
+);
+
+// --- Invitar por WhatsApp --------------------------------------------------
+await page.goto(`http://localhost:${PORT}/?sala=prueba9&local=1`);
+await page.waitForSelector('#lobby:not(.hidden)', { timeout: 30000 });
+const share = await page.evaluate(() => {
+  const btn = document.querySelector('.whatsapp-btn');
+  return {
+    label: btn?.textContent?.trim() ?? '',
+    link: document.querySelector('.lobby-link input')?.value ?? '',
+    copy: Boolean(document.querySelector('.copy-btn')),
+  };
+});
+check(
+  'La sala ofrece invitar por WhatsApp',
+  /whatsapp/i.test(share.label) && share.copy,
+  share.label,
+);
+check(
+  'El link de la sala lleva el código',
+  share.link.includes('sala=prueba9'),
+  share.link,
+);
+
+// El mensaje se arma en el módulo, así que se verifica ahí y no abriendo
+// WhatsApp: abrirlo saldría a internet y dependería de una sesión iniciada.
+const invite = await page.evaluate(() => {
+  const url = new URL(window.__inviteFor('prueba9'));
+  const text = url.searchParams.get('text') ?? '';
+  return { host: url.host, text, last: text.trim().split('\n').pop() };
+});
+check(
+  'El mensaje de invitación termina en el link',
+  invite.host === 'wa.me' &&
+    /family kart/i.test(invite.text) &&
+    invite.last.includes('sala=prueba9'),
+  invite.last,
 );
 
 // --- Sin errores de runtime -----------------------------------------------
