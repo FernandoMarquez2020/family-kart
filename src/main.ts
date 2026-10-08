@@ -43,12 +43,56 @@ let tournament: Tournament | null = null;
 
 // --- Arranque de una carrera -----------------------------------------------
 
+/**
+ * Muestra por qué no se pudo arrancar, en la pantalla.
+ *
+ * Antes, si algo fallaba al crear la carrera, no pasaba nada visible: el menú se
+ * cerraba, aparecía el botón de salir, y quedaba una pantalla negra. Ni el
+ * jugador sabía qué pasó ni había forma de averiguarlo sin abrir las
+ * herramientas del navegador, que es pedirle demasiado a alguien que entró a
+ * jugar. El caso más probable es que el navegador no pueda iniciar el 3D —una
+ * placa vieja, la aceleración por hardware apagada, un Chrome a medio
+ * actualizar— y eso tiene arreglo, pero sólo si se sabe.
+ */
+function showStartupError(error: unknown): void {
+  const detail = error instanceof Error ? error.message : String(error);
+  const webgl = /webgl|context|gpu/i.test(detail);
+
+  const panel = document.createElement('div');
+  panel.id = 'startup-error';
+  panel.innerHTML = `
+    <h2>No pudimos arrancar la carrera</h2>
+    <p>${
+      webgl
+        ? 'Tu navegador no pudo iniciar el motor 3D (WebGL). Suele arreglarse activando la aceleración por hardware en los ajustes del navegador, o reiniciándolo si tiene una actualización pendiente.'
+        : 'Algo falló al preparar la pista.'
+    }</p>
+    <pre>${detail.slice(0, 300).replace(/[<>&]/g, '')}</pre>
+    <button type="button" class="primary-btn">Volver</button>
+  `;
+  panel.querySelector('button')!.addEventListener('click', () => {
+    panel.remove();
+    backToMenu();
+  });
+  document.getElementById('app')?.append(panel);
+}
+
 function startRace(config: RaceConfig): void {
   game?.dispose();
   results.hide();
   menu.close();
   backBtn!.classList.remove('hidden');
 
+  try {
+    buildRace(config);
+  } catch (error) {
+    console.error('[Family Kart] no arrancó:', error);
+    game = null;
+    showStartupError(error);
+  }
+}
+
+function buildRace(config: RaceConfig): void {
   game = new Game(canvas!, config);
   // En red, la sesión se engancha ANTES de largar: si se enganchara después, los
   // karts de los invitados arrancarían manejados por la máquina y se verían

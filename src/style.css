@@ -1061,3 +1061,43 @@ body.touch-on .speedo span { font-size: 32px; }
   letter-spacing: 1px;
   color: rgba(150, 205, 255, 0.85);
 }
+
+/* ---------- Aviso de arranque fallido ---------- */
+
+/* Una pantalla negra no explica nada. Si la carrera no pudo arrancar, acá se
+   dice por qué y qué se puede hacer, en lugar de dejar al jugador mirando. */
+#startup-error {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 14px;
+  padding: 24px;
+  text-align: center;
+  background: rgba(8, 11, 18, 0.94);
+}
+
+#startup-error h2 { margin: 0; font-size: clamp(20px, 4vw, 30px); }
+
+#startup-error p {
+  margin: 0;
+  max-width: 46ch;
+  color: rgba(255, 255, 255, 0.78);
+  line-height: 1.5;
+}
+
+#startup-error pre {
+  margin: 0;
+  max-width: min(640px, 92vw);
+  overflow-x: auto;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: rgba(255, 180, 160, 0.9);
+  font: 12px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
+  text-align: left;
+  white-space: pre-wrap;
+}
